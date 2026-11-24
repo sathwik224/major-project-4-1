@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Intelligent Data Deduplication and Storage Optimization Using Deep Learning
 
 A small Flask web app that stores uploaded files without keeping the same data twice.
@@ -97,3 +98,6 @@ with deep learning **56.8 %** (ratio 2.31 : 1). All files rebuild identical.
 
 Streaming for very large files, a faster nearest-neighbour index for millions of chunks, unpacking docx/zip before
 chunking, a PyTorch model trained on real data, user accounts, compression and encryption of stored chunks.
+=======
+# major-project-4-1
+>>>>>>> 30c35f83453c9e43a6e5264cf2dcc63790219233
