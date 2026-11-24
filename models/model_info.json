@@ -1,0 +1,17 @@
+{
+  "layers": "256-128-32-128-256",
+  "training_chunks": 5000,
+  "test_pairs": 1000,
+  "deep_learning": {
+    "precision": 0.998,
+    "recall": 1.0,
+    "f1": 0.999,
+    "threshold": 0.985
+  },
+  "plain_cosine": {
+    "precision": 0.998,
+    "recall": 1.0,
+    "f1": 0.999,
+    "threshold": 0.988
+  }
+}

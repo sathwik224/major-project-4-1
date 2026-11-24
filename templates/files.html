@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">My Files</h3>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-5"><input class="form-control" name="q" value="{{ q }}" placeholder="Search by file name or type"></div>
+  <div class="col-auto"><button class="btn btn-primary">Search</button> <a href="{{ url_for('files') }}" class="btn btn-outline-secondary">Reset</a></div>
+</form>
+<div class="card p-3">
+  <table class="table table-hover">
+    <tr><th>#</th><th>Name</th><th>Size</th><th>Type</th><th>Uploaded</th><th>Chunks</th><th>Newly stored</th><th></th></tr>
+    {% for f in files %}
+    <tr>
+      <td>{{ f.id }}</td>
+      <td>{{ f.filename }}{% if f.duplicate_of %} <span class="badge bg-warning text-dark">duplicate</span>{% endif %}</td>
+      <td>{{ f.size|size }}</td><td>{{ f.file_type }}</td><td>{{ f.upload_date }}</td><td>{{ f.chunk_count }}</td><td>{{ f.stored_bytes|size }}</td>
+      <td class="text-nowrap">
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('download', file_id=f.id) }}"><i class="bi bi-download"></i> Download</a>
+        <form method="post" action="{{ url_for('delete', file_id=f.id) }}" class="d-inline" onsubmit="return confirm('Delete this file?')">
+          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+        </form>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="8" class="text-muted">No files</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

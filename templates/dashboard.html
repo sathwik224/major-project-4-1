@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Dashboard</h3>
+<div class="row g-3 mb-4">
+  {% for label, value in [("Total files", s.files), ("Original storage", s.original|size),
+     ("Unique data (hash dedup)", s.unique|size), ("Stored on disk", s.stored|size),
+     ("Duplicate data found", s.duplicate|size), ("Storage saved", s.saved_percent ~ " %"),
+     ("Deduplication ratio", s.ratio ~ " : 1"), ("Similar chunks merged", s.merged)] %}
+  <div class="col-6 col-lg-3"><div class="card stat p-3"><div class="num">{{ value }}</div><div class="label">{{ label }}</div></div></div>
+  {% endfor %}
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-7"><div class="card p-3"><h6>Original vs stored size (per file)</h6><canvas id="c1" height="140"></canvas></div></div>
+  <div class="col-lg-5"><div class="card p-3"><h6>Storage by file type</h6><canvas id="c2" height="200"></canvas></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7"><div class="card p-3">
+    <h6>Recent uploaded files</h6>
+    <table class="table table-sm">
+      <tr><th>Name</th><th>Size</th><th>Type</th><th>Date</th></tr>
+      {% for f in recent %}<tr><td>{{ f.filename }}</td><td>{{ f.size|size }}</td><td>{{ f.file_type }}</td><td>{{ f.upload_date }}</td></tr>
+      {% else %}<tr><td colspan="4" class="text-muted">No files yet</td></tr>{% endfor %}
+    </table></div></div>
+  <div class="col-lg-5"><div class="card p-3">
+    <h6>Traditional hash dedup vs proposed method</h6>
+    <table class="table table-sm">
+      <tr><th></th><th>Saved</th><th>Ratio</th></tr>
+      <tr><td>Hash only (SHA-256)</td><td>{{ s.hash_saved_percent }} %</td><td>{{ s.hash_ratio }} : 1</td></tr>
+      <tr class="table-success"><td>Hash + deep learning</td><td>{{ s.saved_percent }} %</td><td>{{ s.ratio }} : 1</td></tr>
+    </table>
+    <h6 class="mt-2">Performance</h6>
+    <table class="table table-sm">
+      <tr><td>Average time per file</td><td>{{ s.avg_time }} s</td></tr>
+      <tr><td>Throughput</td><td>{{ s.throughput }} MB/s</td></tr>
+      <tr><td>Peak memory</td><td>{{ s.memory }} MB</td></tr>
+    </table></div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const c = {{ charts|tojson }};
+new Chart(document.getElementById("c1"), {type: "bar", data: {labels: c.names, datasets: [
+  {label: "Original", data: c.original, backgroundColor: "#a5b4fc"},
+  {label: "Stored", data: c.stored, backgroundColor: "#4f46e5"}]}});
+new Chart(document.getElementById("c2"), {type: "doughnut", data: {labels: c.types, datasets: [
+  {data: c.type_stored, backgroundColor: ["#4f46e5", "#10b981", "#f59e0b", "#ec4899", "#0ea5e9", "#8b5cf6", "#ef4444"]}]}});
+</script>
+{% endblock %}

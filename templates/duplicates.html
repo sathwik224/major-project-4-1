@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Duplicates &amp; Similarity</h3>
+
+{% if info %}
+<div class="card p-3 mb-4">
+  <h6>Deep learning model ({{ info.layers }} autoencoder)</h6>
+  <table class="table table-sm w-auto mb-0">
+    <tr><th></th><th>Precision</th><th>Recall</th><th>F1-score</th><th>Threshold</th></tr>
+    <tr><td>Autoencoder similarity</td><td>{{ info.deep_learning.precision }}</td><td>{{ info.deep_learning.recall }}</td><td>{{ info.deep_learning.f1 }}</td><td>{{ info.deep_learning.threshold }}</td></tr>
+    <tr><td>Plain cosine (no deep learning)</td><td>{{ info.plain_cosine.precision }}</td><td>{{ info.plain_cosine.recall }}</td><td>{{ info.plain_cosine.f1 }}</td><td>{{ info.plain_cosine.threshold }}</td></tr>
+    <tr><td>SHA-256 only</td><td colspan="4">finds identical data only, so it misses every modified chunk</td></tr>
+  </table>
+  <div class="small text-muted mt-2">Measured on {{ info.test_pairs }} test pairs (modified copy = similar, other chunk = different).</div>
+</div>
+{% endif %}
+
+<div class="card p-3 mb-4">
+  <h6>Exact duplicate files (same SHA-256)</h6>
+  <table class="table table-sm">
+    <tr><th>File</th><th>Same as</th><th>Size</th><th>Uploaded</th></tr>
+    {% for f in dup_files %}<tr><td>{{ f.filename }}</td><td>{{ f.original_name }}</td><td>{{ f.size|size }}</td><td>{{ f.upload_date }}</td></tr>
+    {% else %}<tr><td colspan="4" class="text-muted">None yet</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card p-3 mb-4">
+  <h6>Similar chunks found by deep learning (latest 100)</h6>
+  <p class="small text-muted mb-2">A chunk is only merged when the stored difference rebuilds the exact original (verified) - the score alone never deletes anything.</p>
+  <div style="max-height: 350px; overflow: auto">
+  <table class="table table-sm">
+    <tr><th>File</th><th>Cosine</th><th>MinHash</th><th>Verified</th><th>Result</th></tr>
+    {% for r in results %}<tr><td>{{ r.filename }}</td><td>{{ '%.3f' % r.cosine }}</td><td>{{ '%.2f' % r.minhash }}</td>
+      <td>{{ 'yes' if r.verified else 'no' }}</td>
+      <td><span class="badge {{ 'bg-success' if r.result == 'merged' else 'bg-secondary' }}">{{ r.result }}</span></td></tr>
+    {% else %}<tr><td colspan="5" class="text-muted">No candidates yet</td></tr>{% endfor %}
+  </table></div>
+</div>
+
+<div class="card p-3">
+  <h6>Deduplication log (latest 100)</h6>
+  <div style="max-height: 300px; overflow: auto">
+  <table class="table table-sm">
+    <tr><th>Time</th><th>File</th><th>Event</th><th>Saved</th></tr>
+    {% for l in logs %}<tr><td>{{ l.created_at }}</td><td>{{ l.filename }}</td><td>{{ l.event.replace('_', ' ') }}</td><td>{{ l.bytes_saved|size }}</td></tr>
+    {% else %}<tr><td colspan="4" class="text-muted">Nothing yet</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}
